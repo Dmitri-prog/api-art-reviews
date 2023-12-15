@@ -9,7 +9,7 @@ class BaseModel(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        verbose_name='Слаг',
+        verbose_name='Слаг'
     )
 
     class Meta:

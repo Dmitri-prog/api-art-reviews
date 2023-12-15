@@ -21,10 +21,10 @@ class Title(models.Model):
         verbose_name='Название',
     )
     year = models.IntegerField(
-        verbose_name='Год выпуска',
+        verbose_name='Год выпуска'
     )
     description = models.TextField(
-        verbose_name='Описание',
+        verbose_name='Описание'
     )
     genre = models.ForeignKey(
         Genre,
