@@ -26,14 +26,12 @@ class Title(models.Model):
     description = models.TextField(
         verbose_name='Описание'
     )
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.SET_NULL,
-        null=True,
         related_name='titles',
         verbose_name='Жанр',
     )
-    category = models.OneToOneField(
+    category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
