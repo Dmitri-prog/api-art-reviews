@@ -129,3 +129,7 @@ AUTH_USER_MODEL = 'users.MyUser'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+LIMIT_MIN = 50
+LIMIT_MED = 150
+LIMIT_MAX = 254
