@@ -1,6 +1,6 @@
 from datetime import datetime
-from django.db.models import Avg
 
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -60,8 +60,14 @@ class TitleSerializerGet(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
+    def validate(self, data):
+        if Review.objects.get(author=self.initial_data.review):
+            raise ValueError()
+        return data
+
     class Meta:
         fields = '__all__'
+        read_only_fields = ('title', 'id', 'pub_date',)
         model = Review
 
 
@@ -70,4 +76,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
+        read_only_fields = ('review', 'id', 'pub_date',)
         model = Comment

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import (DjangoFilterBackend,
                                            CharFilter, FilterSet)
 
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, mixins, viewsets, permissions
 from rest_framework.pagination import LimitOffsetPagination
 
 from reviews.models import Category, Genre, Review, Title
@@ -12,6 +12,15 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializerCreateAndUpdate, TitleSerializerGet)
 from .permissions import IsAdminOrReadOnly
+
+
+class IsAuthorOrAdmin(permissions.BasePermission):
+    message = 'Изменение чужого контента запрещено!'
+
+    def has_object_permission(self, request, view, object):
+        return (request.method in permissions.SAFE_METHODS
+                or object.author == request.user
+                or request.user.role != 'user')
 
 
 class TitleFilter(FilterSet):
@@ -64,24 +73,39 @@ class CategoryViewSet(mixins.CreateModelMixin,
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                          IsAuthorOrAdmin]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+
+    def get_title(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title
+
+    def get_queryset(self):
+        return self.get_title().reviews.select_related('author')
 
     def perform_create(self, serializer):
         pub_date = datetime.datetime.now()
-        serializer.save(author=self.request.user, pub_date=pub_date)
+        serializer.save(author=self.request.user, pub_date=pub_date,
+                        title=self.get_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrAdmin,
+                          permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+
+    def get_review(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review.comments
+        return self.get_review().comments.select_related('author')
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         pub_date = datetime.datetime.now()
-        serializer.save(author=self.request.user, review=review,
-                        pub_date=pub_date)
+        serializer.save(author=self.request.user,
+                        pub_date=pub_date, review=self.get_review())
