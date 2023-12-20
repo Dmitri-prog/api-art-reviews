@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django import forms
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
@@ -61,8 +62,12 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     def validate(self, data):
-        if Review.objects.get(author=self.initial_data.review):
-            raise ValueError()
+        author = self.context.get('request').user
+        title_id = self.context.get('view').kwargs.get('title_id')
+        if self.context.get('request').method == 'POST':
+            if Review.objects.filter(author=author, title=title_id):
+                raise forms.ValidationError(
+                    'Этот пользователь уже оставлял отзыв!')
         return data
 
     class Meta:
