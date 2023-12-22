@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django import forms
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -47,15 +46,11 @@ class TitleSerializerCreateAndUpdate(serializers.ModelSerializer):
 class TitleSerializerGet(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True, many=False)
     genre = GenreSerializer(read_only=True, many=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = '__all__'
         model = Title
-
-    def get_rating(self, obj):
-        rating = Review.objects.filter(title=obj.id).aggregate(Avg('score'))
-        return rating['score__avg']
 
 
 class ReviewSerializer(serializers.ModelSerializer):

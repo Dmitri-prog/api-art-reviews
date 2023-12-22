@@ -1,20 +1,47 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .abstracts import BaseModel
 from users.models import MyUser
 
 
-class Genre(BaseModel):
+class Genre(models.Model):
+
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название',
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name='Слаг'
+    )
+
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
+    def __str__(self):
+        return self.name
 
-class Category(BaseModel):
+
+class Category(models.Model):
+
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название',
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name='Слаг'
+    )
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
