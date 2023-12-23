@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .abstracts import BaseModel
-from users.models import MyUser
+from users.models import User
 
 
 class Genre(BaseModel):
@@ -57,7 +57,7 @@ class Review(models.Model):
         verbose_name='Произведение'
     )
     author = models.ForeignKey(
-        MyUser,
+        User,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Автор'
@@ -92,7 +92,7 @@ class Comment(models.Model):
         verbose_name='Отзыв'
     )
     author = models.ForeignKey(
-        MyUser,
+        User,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='Автор'

@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from rest_framework import filters, permissions, status, views, viewsets
@@ -9,13 +8,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.permissions import AdminOnly
+from users.models import User
 from users.serializers import (
     UserRegistrationSerializer,
     ConfirmationCodeSerializer,
     UserSerializer
 )
-
-User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -57,26 +55,19 @@ class UserSignUpView(views.APIView):
             email = serializer.initial_data['email']
             username = serializer.initial_data['username']
             user = User.objects.get(email=email, username=username)
-            user.confirmation_code = (
-                default_token_generator.make_token(user)
-            )
-            user.save()
         except (User.DoesNotExist, KeyError):
-            if serializer.is_valid():
-                email = serializer.validated_data['email']
-                username = serializer.validated_data['username']
-                serializer.save()
-                user = get_object_or_404(User, username=username)
-                user.confirmation_code = (
-                    default_token_generator.make_token(user)
-                )
-                user.save()
-            else:
-                return Response(serializer.errors,
-                                status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            email = serializer.data['email']
+            username = serializer.data['username']
+            user = get_object_or_404(User, username=username)
+        confirmation_code = (
+            default_token_generator.make_token(user)
+        )
+        user.save()
         send_mail(subject='Код подтверждения Yamdb',
                   message=f'Ваш код подтверждения регистрации: '
-                          f'{user.confirmation_code}',
+                          f'{confirmation_code}',
                   from_email='yamdb@mail.com',
                   recipient_list=[email],
                   fail_silently=True)
@@ -90,12 +81,11 @@ class TokenObtainView(views.APIView):
     def post(self, request):
         serializer = ConfirmationCodeSerializer(data=request.data)
         if serializer.is_valid():
-            confirmation_code = serializer.validated_data['confirmation_code']
-            username = serializer.validated_data['username']
+            confirmation_code = serializer.data['confirmation_code']
+            username = serializer.data['username']
             user = get_object_or_404(User, username=username)
-            if confirmation_code == user.confirmation_code:
-                user.save()
+            if default_token_generator.check_token(user, confirmation_code):
                 token = AccessToken.for_user(user)
-                return Response({'token': f'{token}'},
+                return Response({'token': f'{str(token)}'},
                                 status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

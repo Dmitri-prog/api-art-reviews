@@ -1,10 +1,8 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from users.mixins import SerializerMixin
-
-User = get_user_model()
+from users.models import User
 
 
 class UserSerializer(SerializerMixin, serializers.ModelSerializer):
@@ -22,7 +20,7 @@ class UserRegistrationSerializer(SerializerMixin, serializers.ModelSerializer):
         fields = ('email', 'username')
 
     def validate_username(self, username):
-        if username == 'me':
+        if username.lower() == 'me':
             raise ValidationError(f'Запрещено использовать имя {username}'
                                   f'в качестве username!')
         return username
