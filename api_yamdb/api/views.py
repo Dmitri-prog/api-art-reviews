@@ -12,16 +12,7 @@ from reviews.models import Category, Genre, Review, Title
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleSerializerCreateAndUpdate, TitleSerializerGet)
-from .permissions import IsAdminOrReadOnly
-
-
-class IsAuthorOrAdmin(permissions.BasePermission):
-    message = 'Изменение чужого контента запрещено!'
-
-    def has_object_permission(self, request, view, object):
-        return (request.method in permissions.SAFE_METHODS
-                or object.author == request.user
-                or request.user.role != 'user')
+from .permissions import IsAdminOrReadOnly, IsAuthorOrAdmin
 
 
 class TitleFilter(FilterSet):

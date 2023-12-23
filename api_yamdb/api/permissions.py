@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from users.models import ADMIN
+
 
 class AdminOnly(permissions.BasePermission):
 
@@ -7,7 +9,7 @@ class AdminOnly(permissions.BasePermission):
         return (
             request.user.is_authenticated
             and (request.user.is_superuser
-                 or request.user.role == 'admin')
+                 or request.user.role == ADMIN)
         )
 
 
@@ -19,5 +21,14 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return (
             request.user.is_authenticated
             and (request.user.is_superuser
-                 or request.user.role == 'admin')
+                 or request.user.role == ADMIN)
         )
+
+
+class IsAuthorOrAdmin(permissions.BasePermission):
+    message = 'Изменение чужого контента запрещено!'
+
+    def has_object_permission(self, request, view, object):
+        return (request.method in permissions.SAFE_METHODS
+                or object.author == request.user
+                or request.user.role != 'user')
