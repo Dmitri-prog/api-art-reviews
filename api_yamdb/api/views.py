@@ -1,5 +1,6 @@
 import datetime
 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import (DjangoFilterBackend,
                                            CharFilter, FilterSet)
@@ -24,7 +25,9 @@ class TitleFilter(FilterSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).all()
     http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitOffsetPagination
