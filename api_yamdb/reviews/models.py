@@ -136,5 +136,7 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
+    TEXT_LIMIT = 20
+
     def __str__(self):
-        return self.text
+        return self.text[:self.TEXT_LIMIT]

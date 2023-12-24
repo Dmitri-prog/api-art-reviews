@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from users.models import ADMIN
+from users.models import ADMIN, USER
 
 
 class AdminOnly(permissions.BasePermission):
@@ -31,4 +31,4 @@ class IsAuthorOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, object):
         return (request.method in permissions.SAFE_METHODS
                 or object.author == request.user
-                or request.user.role != 'user')
+                or request.user.role != USER)
