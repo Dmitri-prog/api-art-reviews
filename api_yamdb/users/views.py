@@ -51,16 +51,10 @@ class UserSignUpView(views.APIView):
 
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
-        try:
-            email = serializer.initial_data['email']
-            username = serializer.initial_data['username']
-            user = User.objects.get(email=email, username=username)
-        except (User.DoesNotExist, KeyError):
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            email = serializer.data['email']
-            username = serializer.data['username']
-            user = get_object_or_404(User, username=username)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.data['email']
+        username = serializer.data['username']
+        user, _ = User.objects.get_or_create(email=email, username=username)
         confirmation_code = (
             default_token_generator.make_token(user)
         )
