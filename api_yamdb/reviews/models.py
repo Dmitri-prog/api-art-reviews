@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from users.models import User
 
+TEXT_LIMIT = 20
+
 
 class Genre(models.Model):
 
@@ -108,7 +110,7 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы'
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_LIMIT]
 
 
 class Comment(models.Model):
@@ -136,7 +138,5 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
-    TEXT_LIMIT = 20
-
     def __str__(self):
-        return self.text[:self.TEXT_LIMIT]
+        return self.text[:TEXT_LIMIT]

@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django import forms
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -61,7 +60,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             user = self.context.get('request').user
             title_id = self.context.get('view').kwargs.get('title_id')
             if Review.objects.filter(author=user, title=title_id).exists():
-                raise forms.ValidationError(
+                raise serializers.ValidationError(
                     'Этот пользователь уже оставлял отзыв!')
         return data
 
