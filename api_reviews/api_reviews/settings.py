@@ -3,10 +3,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -39,7 +37,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'api_yamdb.urls'
+ROOT_URLCONF = 'api_reviews.urls'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
 TEMPLATES = [
@@ -58,7 +56,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'api_yamdb.wsgi.application'
+WSGI_APPLICATION = 'api_reviews.wsgi.application'
 
 
 # Database
